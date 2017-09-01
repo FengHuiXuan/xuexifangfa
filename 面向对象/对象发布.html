@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+	</head>
+	<body>
+		<script>
+			class Observe{
+				
+				constructor(){
+					this.rethisd = {}
+				}
+				//订阅
+				order(need,method){
+					if(typeof method !== 'function'){return}
+					if(!this.rethisd[need]){
+						this.rethisd[need] = []
+					}
+					
+					this.rethisd[need].push(method)
+				}
+				execute(need){
+					let arr = this.rethisd[need]
+					if(arr){
+						for (var i = 0; i < arr.length; i++) {
+							arr[i]()
+						}
+					}
+				}
+				deletes(need,fn){
+					let arr = this.rethisd[need]
+					if(arr){
+						for (var i = 0; i < arr.length; i++) {
+							if(arr[i] === fn){
+								arr.splice(i,1)
+							}
+							
+						}
+					}
+				}
+				
+				
+			}
+			
+			let l = new Observe()
+			
+			
+			function fn(){
+				console.log('1')
+			}
+			l.order('100',fn)
+			l.order('200',function(){
+				console.log('2')
+			})
+			l.order('300',function(){
+				console.log('3')
+			})
+			l.order('300','abc')
+			l.deletes('100',fn)
+			
+			document.onclick = function(){
+				l.execute('100')
+				l.execute('200')
+				l.execute('300')
+			}
+			
+		</script>
+	</body>
+</html>

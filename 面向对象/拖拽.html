@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+			#box,#box2{
+				width: 100px;
+				height: 100px;
+				background: yellow;
+				position: absolute;
+				left: 0;
+				top: 0;
+			}
+			#box2{
+				left: 300px;
+				background: red;
+			}
+		</style>
+		
+	</head>
+	<body>
+		<div id="box"></div>
+		<div id="box2"></div>
+		<script>
+			class Observe{
+				constructor(){
+					this.rethisd = {}
+				}
+				//订阅
+				order(need,method){
+					if(typeof method !== 'function'){return}
+					if(!this.rethisd[need]){
+						this.rethisd[need] = []
+					}
+					this.rethisd[need].push(method)
+				}
+				//执行
+				execute(need){
+					let arr = this.rethisd[need]
+					if(arr){
+						for (var i = 0; i < arr.length; i++) {
+							arr[i]()
+						}
+					}
+				}
+				//删除
+				deletes(need,fn){
+					let arr = this.rethisd[need]
+					if(arr){
+						for (var i = 0; i < arr.length; i++) {
+							if(arr[i] === fn){
+								arr.splice(i,1)
+							}
+						}
+					}
+				}
+			}			
+			class Drag extends Observe{
+				constructor(box){
+					super()
+					this.box = box;
+					this.box.onmousedown = this.downF.bind(this) 
+				}
+				downF(ev){
+					this.execute('down')
+					this.y = ev.clientY - this.box.offsetTop
+					this.x = ev.clientX - this.box.offsetLeft
+					document.onmousemove = this.moveF.bind(this) 
+					document.onmouseup = this.upF.bind(this) 
+				}
+				moveF(ev){
+					this.execute('move')
+					this.box.style.left = ev.clientX - this.x + 'px';
+					this.box.style.top = ev.clientY - this.y + 'px';
+				}
+				upF(){
+					this.execute('up')
+					document.onmousemove = document.onmouseup = null
+				}
+			}
+			
+			
+			let box = document.getElementById('box')
+			
+			let l = new Drag(box)
+			
+			l.order('down',function(){
+				l.box.style.width = '200px'
+				l.box.style.background = 'red'
+			})
+			l.order('move',function(){
+				l.box.style.width = '300px'
+				l.box.style.background = 'blue'
+			})
+			l.order('up',function(){
+				l.box.style.width = '100px'
+				l.box.style.background = 'yellow'
+			})
+			
+			let box2 = document.getElementById('box2')
+			
+			let l2 = new Drag(box2)
+			
+			l2.order('down',function(){
+				l2.box.style.width = '200px'
+			
+			})
+			l2.order('move',function(){
+				l2.box.style.width = '300px'
+				l2.box.style.background = '#000'
+				
+			})
+			l2.order('up',function(){
+				l2.box.style.width = '100px'
+				l2.box.style.background = 'yellow'
+			})
+			
+			
+			
+			
+			
+		</script>
+	</body>
+</html>

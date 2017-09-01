@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+	</head>
+	<body>
+		<script>
+			let  obj = {
+				a:1,
+				
+				arr:[1,2,3,4]
+				
+			}
+			function f(obj){
+				let  obj2 = obj instanceof Array ? [] : {};
+				for(let att in obj){
+					if(typeof obj[att] === 'object' && obj[att] !== null){
+						obj2[att] = f(obj[att])
+						
+					}else{
+						obj2[att] = obj[att]
+					}
+				}
+				return obj2
+			}
+			
+			
+			
+			let obj2 = f(obj)
+			
+			obj.arr.push(10000000)
+			
+			console.log(obj2)
+			console.log(obj)
+			
+		</script>
+	</body>
+</html>
