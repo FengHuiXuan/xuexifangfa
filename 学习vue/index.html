@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>todos</title>
+    <link rel="stylesheet" type="text/css" href="css/base.css">
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+</head>
+
+<body>
+    <section class="todoapp">
+        <div>
+            <header class="header" >
+                <h1>todos</h1>
+                <input class="new-todo" placeholder="请输入内容" value="">
+            </header>
+            <section class="main">
+                <input class="toggle-all" type="checkbox" >
+                <ul class="todo-list">
+                    <li class="completed">
+                        <div class="view">
+                            <input class="toggle" type="checkbox" checked="">
+                            <label>多多对对对</label>
+                            <button class="destroy"></button>
+                        </div>
+                        <input class="edit" value="多多对对对">
+                    </li>
+                    
+                    
+                </ul>
+            </section>
+            <footer class="footer">
+	            <span class="todo-count">
+	            	<strong>0</strong>
+	            	<span>条未选中</span>
+	            </span>
+            </footer>
+        </div>
+    </section>
+    <script>
+    	
+    	let  newTodo = document.querySelector('.new-todo');
+    	
+    	let  todoList = document.querySelector('.todo-list');
+    	
+    	let toggleAll = document.querySelector('.toggle-all')
+    	
+    	let arr = [];
+    	
+    	let str = localStorage.getItem("miaov-miaov")
+    	
+    	let strArray = JSON.parse(str)
+    	if(strArray){
+    		arr = strArray
+    	}
+    	
+    	todoList.innerHTML = arr.map((itme) => {
+    		return `<li class="${itme.isSelected ? 'completed' : ''}">
+                        <div class="view">
+                            <input class="toggle" type="checkbox" ${itme.isSelected ? 'checked' : ''}>
+                            <label>${itme.title}</label>
+                            <button class="destroy"></button>
+                        </div>
+                        <input class="edit" value="${itme.title}">
+                    </li>`
+    	}).join('')
+    	
+    	let todoListAll = todoList.getElementsByTagName('li')
+    	
+    	let todoCount = document.querySelector('.todo-count strong');
+    	todoCount.innerHTML = f();
+    	
+    	
+    	
+    	newTodo.onkeyup = function(ev){
+    		if(ev.keyCode === 13){
+    			let str = this.value;
+    			this.value = ''
+    			let html = ` <div class="view">
+		                            <input class="toggle" type="checkbox">
+		                             <label>${str}</label>	
+		                            <button class="destroy"></button>
+		                        </div>
+		                        <input class="edit" value="${str}">
+		                    `
+		        let todoListLi = document.createElement('li')        
+		        todoListLi.innerHTML = html;
+		        todoList.appendChild(todoListLi)
+		        let obj = {
+    				"title":str,
+    				"isSelected":false,
+    			}
+    			arr.push(obj)
+    			localS()
+    			todoCount.innerHTML = f()
+    			
+    		}
+    	}
+    	
+    	todoList.onclick = function(ev){
+    		for (var i = 0; i < todoListAll.length; i++) {
+    			todoListAll[i].index  = i
+    		}
+    		if(ev.target.className == 'toggle'){   //选中
+    			let lis = ev.target.parentNode.parentNode
+    			let n = lis.index;
+    			arr[n].isSelected = ev.target.checked;
+    			lis.classList.toggle('completed') 
+    			localS()
+    			todoCount.innerHTML = f()
+    		}
+    		if(ev.target.className == 'destroy'){ //删除
+    			let n = ev.target.parentNode.parentNode.index;
+    			ev.target.parentNode.parentNode.remove()
+    			arr.splice(n,1)
+    			localS()
+    			todoCount.innerHTML = f()
+    		}
+    	}
+    
+    	
+    	todoList.ondblclick = function(ev){
+    		
+    		for (var i = 0; i < todoListAll.length; i++) {
+    			todoListAll[i].index  = i
+    		}
+    		if(ev.target.nodeName === 'LABEL'){
+    			let lis = ev.target.parentNode.parentNode
+    			let n = lis.index;
+    			lis.classList.add('editing')
+    			let edit = lis.lastElementChild;
+    			
+    			let titl = edit.value;
+    			edit.onkeyup = function(ev){
+    				if(ev.keyCode === 27){
+    					lis.classList.remove('editing');
+    					
+    					this.value = titl
+    					return
+    				}else if(ev.keyCode === 13){
+    					lis.classList.remove('editing');
+    					arr[n].title = this.value;
+    					localS();
+    					ev.target.innerHTML = this.value;
+    				}
+    			}
+    			edit.onblur = function(){
+    				lis.classList.remove('editing');
+    				arr[n].title = this.value;
+    				localS();
+    				ev.target.innerHTML = this.value;
+    			}
+    		}
+    	}
+    	
+    	
+    	function localS(){
+    		let strAll = JSON.stringify(arr)
+    		localStorage.setItem("miaov-miaov",strAll)
+    	}
+    	
+    	function f(){
+    		let n = arr.length
+			for (var i = 0; i < arr.length; i++) {
+				if(arr[i].isSelected){
+					n--
+				}
+			}
+			if(n === 0){
+				toggleAll.checked = true
+			}else{
+				toggleAll.checked = false
+			}
+			
+			return n
+    	}
+    </script>
+</body>
+
+</html>
