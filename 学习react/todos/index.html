@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>todos</title>
+	<link rel="stylesheet" type="text/css" href="css/base.css">
+	<link rel="stylesheet" type="text/css" href="css/index.css">
+	<script src="./src/react.development.js"></script>
+	<script src="./src/react-dom.development.js"></script>
+	<script src="./src/babel.min.js"></script>
+</head>
+
+<body>
+    <section  class="todoapp">
+        <!-- <div>
+            <header class="header" >
+                <h1>todos</h1>
+                <input class="new-todo" placeholder="请输入内容" value="">
+            </header>
+            <section class="main">
+                <input class="toggle-all" type="checkbox" >
+                <ul class="todo-list">
+                    <li class="completed">
+                        <div class="view">
+                            <input class="toggle" type="checkbox" checked="">
+                            <label>多多对对对</label>
+                            <button class="destroy"></button>
+                        </div>
+                        <input class="edit" value="多多对对对">
+                    </li>
+                    
+                    
+                </ul>
+            </section>
+            <footer class="footer">
+	            <span class="todo-count">
+	            	<strong>0</strong>
+	            	<span>条未选中</span>
+	            </span>
+            </footer>
+        </div> -->
+    </section>
+    <script type="text/babel">	
+		let  data =  [
+			{
+				title:'多多对对对1',
+				state:true
+			},
+			{
+				title:'多多对对对2',
+				state:false
+			},
+			{
+				title:'多多对对对3',
+				state:false
+			}
+
+		]
+
+		class Headers extends React.Component {   //输入框
+
+			enetrClick (ev) {
+				if(ev.keyCode === 13){
+			
+					this.props.headData(ev.target.value)
+				}
+			}
+			render () {
+				return <header className="header" >
+							<h1>todos</h1>
+							<input 
+								type="text" 
+								className="new-todo" 
+								placeholder="请输入内容" 
+								onKeyDown={this.enetrClick.bind(this)}
+							/>
+						</header> 
+
+			}
+		}
+		class List extends React.Component {  //信息显示
+			constructor (po) {
+				super(po)
+				this.state = {
+					addclass:'',
+					jilu:this.props.list.title
+				}
+			}
+			deleteData () {  //删除信息
+				this.props.f(this.props.i,null,null)
+			}
+			decidesState (ev) {  //信息状态
+				this.props.f(this.props.i,ev.target.checked,null)
+			
+			}
+			compile () {
+				
+				this.setState({
+					addclass:'editing'
+				})
+			}
+			Blur (ev) {
+				this.setState({
+					addclass:''
+				})
+				this.state.jilu = ev.target.value
+			}
+			keyDown (ev) {
+		
+				if(ev.keyCode === 13){
+					this.setState({
+						addclass:''
+					})
+				}
+				if(ev.keyCode === 27){
+					this.setState({
+						addclass:''
+					})
+					this.props.f(this.props.i,null,this.state.jilu)
+				}
+			}
+			changeInput (ev) {
+				this.props.f(this.props.i,null,ev.target.value)
+			}
+ 			render () {
+		
+				return <li className={this.props.list.state ? 'completed' : ''}
+							className={this.state.addclass}	
+						>
+							<div className="view">
+								<input 
+									className="toggle" 
+									type="checkbox" 
+									onChange={this.decidesState.bind(this)}
+									checked= {this.props.list.state}
+								/>
+								<label 
+									onDoubleClick={this.compile.bind(this)}
+								>{this.props.list.title}</label>
+								<button 
+									className="destroy" 
+									onClick={this.deleteData.bind(this)}
+								></button>
+							</div>
+							<input 
+								className="edit" 
+								value={this.props.list.title}
+								onBlur={this.Blur.bind(this)}
+								onKeyDown={this.keyDown.bind(this)}
+								onChange={this.changeInput.bind(this)}
+							/>
+						</li>
+			}
+		}
+		class Section extends React.Component {  //信息显示框
+			chuanList (i,t,s) {
+				this.props.deleteData(i,t,s)
+			}
+			quanxuan (ev) {
+			
+				this.props.quanxuan(ev.target.checked)
+			}
+			render () {
+			
+				return <section className="main">
+							<input 
+								className="toggle-all" 
+								type="checkbox"  
+								onChange={this.quanxuan.bind(this)}
+								checked={this.props.pr}
+							/>
+							<ul className="todo-list">
+								{
+									this.props.title.map((item,index) => {
+										return <List 
+											list={item} 
+											key={index}
+											i={index}
+											f={this.chuanList.bind(this)}
+										></List>
+									})
+								}
+							</ul>
+						</section>
+
+			}
+		}
+		class Footer extends React.Component {   //底部选中框
+			render () {
+				return <footer className="footer">
+							<span className="todo-count">
+								<strong>{this.props.not}</strong>
+								<span>条未选中</span>
+							</span>
+						</footer>
+
+			}
+		}
+
+		class App extends React.Component {
+			constructor (po) {
+				super(po)
+				let attr = this.props.list.filter((item) => {
+					return !item.state
+				})
+				this.state = {
+					list:this.props.list, //数据
+					pr:false,   //全选按钮的状态
+					not:attr.length
+				}
+			}
+			headData (t) {   //添加信息
+				let arr = this.state.list
+				arr.push({
+					title:t,
+					state:false
+				})
+				this.setState({
+					list:arr,
+					not:++this.state.not
+				})
+			}
+			deleteData (i,b,s) {  //信息列表中的 删除 、选中
+				let arr = this.state.list
+				
+				if(b === null && s === null){
+					arr.splice(i,1)
+				}
+				
+				if(b){
+					arr[i].state = true
+				}else if(b==false){
+					arr[i].state = false
+				}
+				
+				if(b === null && s !== null){
+					arr[i].title = s
+				}
+				
+				let attr = arr.filter((item) => {
+					return item.state
+				})
+				
+				this.setState({
+					list:arr,
+					pr:attr.length === arr.length,
+					not:arr.length-attr.length
+				})
+			}
+			quanxuananniu (u) {   //全选按钮
+				
+				let arr = this.state.list
+			
+				arr.forEach((item) => {
+					item.state = u
+				})
+			
+				this.setState({
+					list:arr,
+					pr:u,
+					not:u ? 0 : arr.length
+				})
+
+			}
+			render () {
+				return <div>
+							<Headers
+								 headData={this.headData.bind(this)
+							 }>
+							 </Headers>
+							 {this.state.list.length === 0 ? '' :
+							  	<Section 
+									pr={this.state.pr}
+									title={this.state.list}
+									deleteData={this.deleteData.bind(this)}
+									quanxuan={this.quanxuananniu.bind(this)}
+								></Section>
+							}
+							{this.state.list.length === 0 ? '' : 
+								<Footer
+									not={this.state.not}
+								></Footer>
+							}
+					</div>
+			}
+
+		}
+		ReactDOM.render(
+			<App list={data} />
+			,
+			document.querySelector('.todoapp')
+		)
+
+
+	</script>
+</body>
+
+</html>
